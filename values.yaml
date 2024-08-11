@@ -1,0 +1,24 @@
+cluster: default
+region: us-east-1
+service:
+#  targetGroups:
+#  - targetGroupArn: 'arn:aws:elasticloadbalancing:us-east-1:1234567890:targetgroup/sample-app-int-dev/xxxxx'
+#    targetPort: 8080
+#  - targetGroupArn: 'arn:aws:elasticloadbalancing:us-east-1:1234567890:targetgroup/sample-app-ext-dev/xxxxx'
+#    targetPort: 8080
+  securityGroupId: sg-01234567890
+  subnets:
+  - subnetId: subnet-01234567890
+deployment:
+  image: "nginx:latest"
+  desiredCount: 0
+  cpu: 1024
+  memory: 256
+  taskRoleArn: arn:aws:iam::1234567890:role/ecsTaskExecutionRole
+  containers:
+  - name: "sample-app"
+    ports:
+    - containerPort: 8080
+    envs:
+    - name: NGINX_PORT
+      value: "8080"

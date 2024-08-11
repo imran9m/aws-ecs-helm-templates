@@ -1,0 +1,40 @@
+{{ $app := $.Chart.Name -}}
+{{ $version := $.Chart.AppVersion -}}
+{{ $releaseVersion := $.Chart.Version -}}
+containerDefinitions:
+{{- range .Values.deployment.containers }}
+- cpu: 0
+  environment:
+  - name: "APPLICATION_NAME"
+    value: {{ $app }}
+  - name: "APPLICATION_VERSION"
+    value: {{ $releaseVersion }}
+  {{- range.envs }}
+  - name: {{ .name | quote }}
+    value: {{ .value | quote }}
+  {{- end }}
+  essential: true
+  image: {{ .Values.deployment.image | quote }}
+  volumesFrom: []
+  mountPoints: []
+  logConfiguration:
+    logDriver: awslogs
+    options:
+      awslogs-group: {{ $.Values.cluster }}
+      awslogs-region: {{ $.Values.region }}
+      awslogs-stream-prefix: {{ $app }}/{{ $releaseVersion }}
+  name: {{ $app }}
+  portMappings:
+  {{- range.ports }}
+  - appProtocol: http
+    containerPort: {{ .containerPort }}
+    hostPort: {{ .containerPort }}
+    name: {{ $app }}-{{ .containerPort }}-tcp
+    protocol: tcp
+  {{- end }}
+{{- end }}
+cpu: {{ .Values.deployment.cpu | quote }}
+family: {{ $app}}-{{ .Values.environment }}
+memory: {{ .Values.deployment.memory | quote }}
+taskRoleArn: {{ .Values.deployment.taskRoleArn }}
+networkMode: awsvpc

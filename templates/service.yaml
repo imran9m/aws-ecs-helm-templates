@@ -1,0 +1,29 @@
+{{ $app := $.Chart.Name -}}
+{{ $version := $.Chart.AppVersion -}}
+{{ $releaseVersion := $.Chart.Version -}}
+cluster: {{ .Values.cluster }}
+deploymentConfiguration:
+  maximumPercent: 200
+  minimumHealthyPercent: 0
+desiredCount: {{ .Values.deployment.desiredCount }}
+enableECSManagedTags: true
+enableExecuteCommand: true
+{{- if .Values.service.targetGroups }}
+loadBalancers:
+{{- range .Values.service.targetGroups }}
+- containerName: {{ $app }}
+  containerPort: {{ .targetPort }}
+  targetGroupArn: {{ .targetGroupArn }}
+{{- end }}
+{{- end }}
+networkConfiguration:
+  awsvpcConfiguration:
+    assignPublicIp: DISABLED
+    securityGroups:
+    - {{ .Values.service.securityGroupId | quote }}
+    subnets:
+    {{- range .Values.service.subnets }}
+    - {{ .subnetId | quote }}
+    {{- end }}
+propagateTags: SERVICE
+taskDefinition: "{{ $app }}-{{ .Values.environment }}:{{ .Values.revision }}"

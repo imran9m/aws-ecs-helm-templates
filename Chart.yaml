@@ -1,0 +1,6 @@
+apiVersion: v2
+name: "sample-demo-ecs-service"
+appVersion: v1
+description: A helm chart for ECS API
+version: 1.0.0
+type: application
